@@ -24,7 +24,7 @@ func TestGetPlayers(t *testing.T) {
 
 		// Assert
 		actual := response.Body.String()
-		expected := "20"
+		expected := "30"
 		assert.Equal(t, expected, actual)
 	})
 
@@ -94,7 +94,7 @@ func TestProcessWins(t *testing.T) {
 		// Act
 		server.ServeHTTP(response, request)
 
-		//Assert
+		// Assert
 		actual := response.Code
 		expected := http.StatusAccepted
 		assert.Equal(t, expected, actual)

@@ -25,7 +25,7 @@ func (p *PlayerServer) getScore(w http.ResponseWriter, r *http.Request) {
 	if score == 0 {
 		w.WriteHeader(http.StatusNotFound)
 	}
-	fmt.Fprint(w, p.store.GetPlayerScore(player))
+	_, _ = fmt.Fprint(w, p.store.GetPlayerScore(player))
 }
 
 func (p *PlayerServer) processWin(w http.ResponseWriter, r *http.Request) {
