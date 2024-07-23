@@ -119,6 +119,22 @@ func TestProcessWins(t *testing.T) {
 	})
 }
 
+func TestGetLeague(t *testing.T) {
+	t.Run("returns 200 on /league", func(t *testing.T) {
+		// Arrnage
+		store := &StubPlayerStore{}
+		server := player.NewPlayerServer(store)
+		request, _ := http.NewRequest(http.MethodGet, "league", nil)
+		response := httptest.NewRecorder()
+
+		// Act
+		server.ServeHTTP(response, request)
+
+		// Assert
+		assert.Equal(t, http.StatusOK, response.Code)
+	})
+}
+
 type StubPlayerStore struct {
 	scores                   map[string]int
 	increasePlayerScoreCalls []string
