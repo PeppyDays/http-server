@@ -1,4 +1,4 @@
-package player
+package player_test
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"example.com/player"
 )
 
 func TestGetPlayers(t *testing.T) {
@@ -15,7 +17,7 @@ func TestGetPlayers(t *testing.T) {
 		store := &StubPlayerStore{
 			scores: map[string]int{"Pepper": 20},
 		}
-		server := NewPlayerServer(store)
+		server := player.NewPlayerServer(store)
 		request := arrangeGetScoreRequest("Pepper")
 		response := httptest.NewRecorder()
 
@@ -24,7 +26,7 @@ func TestGetPlayers(t *testing.T) {
 
 		// Assert
 		actual := response.Body.String()
-		expected := "30"
+		expected := "20"
 		assert.Equal(t, expected, actual)
 	})
 
@@ -33,7 +35,7 @@ func TestGetPlayers(t *testing.T) {
 		store := &StubPlayerStore{
 			scores: map[string]int{"Floyd": 10},
 		}
-		server := NewPlayerServer(store)
+		server := player.NewPlayerServer(store)
 		request := arrangeGetScoreRequest("Floyd")
 		response := httptest.NewRecorder()
 
@@ -51,7 +53,7 @@ func TestGetPlayers(t *testing.T) {
 		store := &StubPlayerStore{
 			scores: map[string]int{"Arine": 10},
 		}
-		server := NewPlayerServer(store)
+		server := player.NewPlayerServer(store)
 		request := arrangeGetScoreRequest("Arine")
 		response := httptest.NewRecorder()
 
@@ -67,7 +69,7 @@ func TestGetPlayers(t *testing.T) {
 	t.Run("returns 404 on missing player", func(t *testing.T) {
 		// Arrange
 		store := &StubPlayerStore{}
-		server := NewPlayerServer(store)
+		server := player.NewPlayerServer(store)
 		request := arrangeGetScoreRequest("Arine")
 		response := httptest.NewRecorder()
 
@@ -87,7 +89,7 @@ func TestProcessWins(t *testing.T) {
 		store := &StubPlayerStore{
 			scores: map[string]int{},
 		}
-		server := NewPlayerServer(store)
+		server := player.NewPlayerServer(store)
 		request := arrangePostScoreRequest("Arine")
 		response := httptest.NewRecorder()
 
@@ -105,7 +107,7 @@ func TestProcessWins(t *testing.T) {
 		store := &StubPlayerStore{
 			scores: map[string]int{},
 		}
-		server := NewPlayerServer(store)
+		server := player.NewPlayerServer(store)
 		request := arrangePostScoreRequest("Arine")
 		response := httptest.NewRecorder()
 
