@@ -1,7 +1,9 @@
 package player_test
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -120,11 +122,11 @@ func TestProcessWins(t *testing.T) {
 }
 
 func TestGetLeague(t *testing.T) {
-	t.Run("returns 200 on /league", func(t *testing.T) {
+	t.Run("returns 200", func(t *testing.T) {
 		// Arrnage
 		store := &StubPlayerStore{}
 		server := player.NewPlayerServer(store)
-		request, _ := http.NewRequest(http.MethodGet, "league", nil)
+		request := arrangeGetLeagueRequest()
 		response := httptest.NewRecorder()
 
 		// Act
@@ -133,10 +135,48 @@ func TestGetLeague(t *testing.T) {
 		// Assert
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
+
+	t.Run("returns content-type as application/json", func(t *testing.T) {
+		// Arrnage
+		store := &StubPlayerStore{}
+		server := player.NewPlayerServer(store)
+		request := arrangeGetLeagueRequest()
+		response := httptest.NewRecorder()
+
+		// Act
+		server.ServeHTTP(response, request)
+
+		// Assert
+		actual := response.Result().Header.Get("Content-Type")
+		expected := "application/json"
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("returns the league correctly", func(t *testing.T) {
+		// Arrnage
+		expected := []player.Player{
+			{"Cleo", 32},
+			{"Chris", 20},
+			{"Tiest", 14},
+		}
+		store := &StubPlayerStore{league: expected}
+		server := player.NewPlayerServer(store)
+		request := arrangeGetLeagueRequest()
+		response := httptest.NewRecorder()
+
+		// Act
+		server.ServeHTTP(response, request)
+
+		// Assert
+		actual := parseLeague(t, response.Body)
+		assert.Equal(t, expected, actual)
+	})
 }
 
 type StubPlayerStore struct {
-	scores                   map[string]int
+	scores map[string]int
+	league []player.Player
+
 	increasePlayerScoreCalls []string
 }
 
@@ -146,6 +186,10 @@ func (s *StubPlayerStore) GetPlayerScore(name string) int {
 
 func (s *StubPlayerStore) IncreasePlayerScore(name string) {
 	s.increasePlayerScoreCalls = append(s.increasePlayerScoreCalls, name)
+}
+
+func (s *StubPlayerStore) GetLeague() []player.Player {
+	return s.league
 }
 
 func arrangeGetScoreRequest(name string) *http.Request {
@@ -164,4 +208,20 @@ func arrangePostScoreRequest(name string) *http.Request {
 		nil,
 	)
 	return request
+}
+
+func arrangeGetLeagueRequest() *http.Request {
+	request, _ := http.NewRequest(
+		http.MethodGet,
+		"/league",
+		nil,
+	)
+	return request
+}
+
+func parseLeague(t testing.TB, body io.Reader) (league []player.Player) {
+	if err := json.NewDecoder(body).Decode(&league); err != nil {
+		t.Errorf("failed to decode body as league")
+	}
+	return
 }
