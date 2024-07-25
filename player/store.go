@@ -1,6 +1,9 @@
 package player
 
-// TODO: This is temporal implementation, so move it into test later.
+import (
+	"io"
+)
+
 type InMemoryPlayerStore struct {
 	scores map[string]int
 	league []Player
@@ -24,4 +27,17 @@ func (s *InMemoryPlayerStore) GetLeague() []Player {
 
 func NewInMemoryPlayerStore() *InMemoryPlayerStore {
 	return &InMemoryPlayerStore{map[string]int{}, []Player{}}
+}
+
+type FileSystemPlayerStore struct {
+	database io.Reader
+}
+
+func (s *FileSystemPlayerStore) GetLeague() []Player {
+	league, _ := ParseLeague(s.database)
+	return league
+}
+
+func NewFileSystemPlayerStore(database io.Reader) *FileSystemPlayerStore {
+	return &FileSystemPlayerStore{database: database}
 }

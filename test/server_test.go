@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -50,10 +48,11 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 		server.ServeHTTP(response, arrangeGetLeagueRequest())
 		assert.Equal(t, http.StatusOK, response.Code)
 
-		actual := parseLeague(t, response.Body)
+		actual, err := player.ParseLeague(response.Body)
 		expected := []player.Player{
 			{Name: "Pepper", Wins: 3},
 		}
+		assert.NoError(t, err)
 		assert.Equal(t, expected, actual)
 	})
 }
@@ -83,11 +82,4 @@ func arrangeGetLeagueRequest() *http.Request {
 		nil,
 	)
 	return request
-}
-
-func parseLeague(t testing.TB, body io.Reader) (league []player.Player) {
-	if err := json.NewDecoder(body).Decode(&league); err != nil {
-		t.Errorf("failed to decode body as league")
-	}
-	return
 }
