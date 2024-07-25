@@ -30,14 +30,15 @@ func NewInMemoryPlayerStore() *InMemoryPlayerStore {
 }
 
 type FileSystemPlayerStore struct {
-	database io.Reader
+	database io.ReadSeeker
 }
 
 func (s *FileSystemPlayerStore) GetLeague() []Player {
+	_, _ = s.database.Seek(0, io.SeekStart)
 	league, _ := ParseLeague(s.database)
 	return league
 }
 
-func NewFileSystemPlayerStore(database io.Reader) *FileSystemPlayerStore {
+func NewFileSystemPlayerStore(database io.ReadSeeker) *FileSystemPlayerStore {
 	return &FileSystemPlayerStore{database: database}
 }

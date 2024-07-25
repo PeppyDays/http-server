@@ -28,4 +28,22 @@ func TestFileSystemPlayerStore(t *testing.T) {
 		}
 		assert.Equal(t, expected, actual)
 	})
+
+	t.Run("read twice correctly", func(t *testing.T) {
+		// Arrange
+		database := strings.NewReader(`[
+			{"Name": "Cleo", "Wins": 10}
+		]`)
+		store := player.NewFileSystemPlayerStore(database)
+		_ = store.GetLeague()
+
+		// Act
+		actual := store.GetLeague()
+
+		// Assert
+		expected := []player.Player{
+			{Name: "Cleo", Wins: 10},
+		}
+		assert.Equal(t, expected, actual)
+	})
 }
