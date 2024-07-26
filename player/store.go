@@ -32,11 +32,11 @@ func NewInMemoryPlayerStore() *InMemoryPlayerStore {
 
 type FileSystemPlayerStore struct {
 	database io.ReadWriteSeeker
+	league   League
 }
 
 func (s *FileSystemPlayerStore) GetPlayerScore(name string) int {
-	league := s.GetLeague()
-	player := league.Find(name)
+	player := s.league.Find(name)
 	if player != nil {
 		return player.Wins
 	}
@@ -44,23 +44,22 @@ func (s *FileSystemPlayerStore) GetPlayerScore(name string) int {
 }
 
 func (s *FileSystemPlayerStore) IncreasePlayerScore(name string) {
-	league := s.GetLeague()
-	player := league.Find(name)
+	player := s.league.Find(name)
 	if player != nil {
 		player.Wins++
 	} else {
-		league = append(league, Player{name, 1})
+		s.league = append(s.league, Player{name, 1})
 	}
 	_, _ = s.database.Seek(0, io.SeekStart)
-	_ = json.NewEncoder(s.database).Encode(league)
+	_ = json.NewEncoder(s.database).Encode(s.league)
 }
 
 func (s *FileSystemPlayerStore) GetLeague() League {
-	_, _ = s.database.Seek(0, io.SeekStart)
-	league, _ := DecodeLeague(s.database)
-	return league
+	return s.league
 }
 
 func NewFileSystemPlayerStore(database io.ReadWriteSeeker) *FileSystemPlayerStore {
-	return &FileSystemPlayerStore{database: database}
+	_, _ = database.Seek(0, io.SeekStart)
+	league, _ := DecodeLeague(database)
+	return &FileSystemPlayerStore{database: database, league: league}
 }
