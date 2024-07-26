@@ -66,6 +66,24 @@ func TestFileSystemPlayerStore(t *testing.T) {
 		assert.Equal(t, expected, actual)
 	})
 
+	t.Run("increase wins for new player", func(t *testing.T) {
+		// Arrange
+		database := createTemporalFile(`[
+			{"Name": "Cleo", "Wins": 10},
+			{"Name": "Chris", "Wins": 33}
+		]`)
+		defer clearTemporalFile(database)
+		store := player.NewFileSystemPlayerStore(database)
+
+		// Act
+		store.IncreasePlayerScore("Arine")
+
+		// Assert
+		actual := store.GetPlayerScore("Arine")
+		expected := 1
+		assert.Equal(t, expected, actual)
+	})
+
 	t.Run("increase wins for existing player", func(t *testing.T) {
 		// Arrange
 		database := createTemporalFile(`[
