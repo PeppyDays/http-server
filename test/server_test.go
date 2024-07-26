@@ -48,8 +48,8 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 		server.ServeHTTP(response, arrangeGetLeagueRequest())
 		assert.Equal(t, http.StatusOK, response.Code)
 
-		actual, err := player.ParseLeague(response.Body)
-		expected := []player.Player{
+		actual, err := player.DecodeLeague(response.Body)
+		expected := player.League{
 			{Name: "Pepper", Wins: 3},
 		}
 		assert.NoError(t, err)

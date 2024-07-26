@@ -152,7 +152,7 @@ func TestGetLeague(t *testing.T) {
 
 	t.Run("returns the league correctly", func(t *testing.T) {
 		// Arrnage
-		expected := []player.Player{
+		expected := player.League{
 			{"Cleo", 32},
 			{"Chris", 20},
 			{"Tiest", 14},
@@ -166,7 +166,7 @@ func TestGetLeague(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		// Assert
-		actual, err := player.ParseLeague(response.Body)
+		actual, err := player.DecodeLeague(response.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, expected, actual)
 	})
@@ -174,7 +174,7 @@ func TestGetLeague(t *testing.T) {
 
 type StubPlayerStore struct {
 	scores map[string]int
-	league []player.Player
+	league player.League
 
 	increasePlayerScoreCalls []string
 }
@@ -187,7 +187,7 @@ func (s *StubPlayerStore) IncreasePlayerScore(name string) {
 	s.increasePlayerScoreCalls = append(s.increasePlayerScoreCalls, name)
 }
 
-func (s *StubPlayerStore) GetLeague() []player.Player {
+func (s *StubPlayerStore) GetLeague() player.League {
 	return s.league
 }
 
